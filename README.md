@@ -1,88 +1,89 @@
-# UBE2E3: Ubiquitin Conjugating Enzyme E2 E3 - A Study on Its Role in Human Genetics
+# Open Chromatin Evolution and Human-Accelerated Regions
 
-## Introduction
+This repository presents a cross-species comparative genomics pipeline to identify **human-accelerated regulatory regions (HARs)** based on predicted open chromatin activity. By integrating ATAC-seq derived CNN models with phylogenetic data, molecular distances, and longevity traits, we study the evolution of regulatory DNA across mammals with a focus on the primate brain.
 
-The UBE2E3 gene encodes a ubiquitin-conjugating enzyme involved in the critical process of protein ubiquitination. Ubiquitination is a key post-translational modification that regulates protein stability, cellular signaling, and various metabolic pathways. This study aims to analyze UBE2E3 at the genomic level, examining its sequence, function, evolutionary conservation, and potential role in disease pathology.
+## Project Overview
+We investigate the evolutionary trajectory of chromatin accessibility using:
+- Machine learning predictions of ATAC-seq peaks across 222 species
+- Whole-genome alignments from Zoonomia and molecular distance matrices
+- Comparative modeling of evolutionary decay and divergence from mouse
+- Statistical association of open chromatin signals with longevity traits
 
-In addition to UBE2E3, this project includes a broader analysis of gene expression patterns, evolutionary conservation across species, and chromatin accessibility in regulatory regions. By integrating multiple datasets and computational approaches, this study provides a holistic view of genome functionality and transcriptional regulation.
+The project outputs enhancer-like regions with elevated activity in humans and evaluates their evolutionary relevance.
 
-## Why This Analysis Is Important
+## Objectives
+- Quantify chromatin accessibility at orthologous motor cortex regions
+- Measure evolutionary decay of open chromatin signal across species
+- Build phylogenetic and distance-based trees from sequence similarity and predicted activity
+- Identify HARs by statistical contrast between human and non-human primates
+- Model enhancer-longevity relationships using phylogenetic linear models (phylolm)
 
-**1. Functional Significance:** UBE2E3 is a crucial enzyme in the ubiquitination pathway, interacting with E1 ubiquitin-activating and E3 ubiquitin ligase enzymes.
+## Dataset Description
+| File Name                                          | Description                                                         |
+|---------------------------------------------------|---------------------------------------------------------------------|
+| `m1.peakPred.1.csv`                               | CNN-based predicted ATAC-seq signals for 222 species                |
+| `m1.peaks.hg38.bed`                               | Coordinates of mouse motor cortex peaks                             |
+| `ZoonomiaGenomeInfo_3.csv`                        | Metadata on evolutionary splits, genome quality, and longevity      |
+| `200Mammal_hal_tree_noancestors_matrix.csv`       | Pairwise molecular similarity matrix                                |
+| `Zoonomia_ChrX_lessGC40_241species_30Consensus.tree` | Zoonomia phylogenetic tree                                      |
+| `pantheriaLongevity.csv`                          | Species lifespan data                                               |
 
-**2. Disease Relevance:** Dysregulation of ubiquitination pathways, including mutations in UBE2E3, has been linked to neurodegenerative diseases, cancer, and immune disorders.
+**Packages Used:** `edgeR`, `ggplot2`, `ape`, `phylolm`
 
-**3. Evolutionary Conservation:** The gene exhibits 100% sequence conservation across humans, mice, and rats, indicating its fundamental role in cellular processes.
+## Pipeline Summary
 
-**4. Regulatory Genomics:** This analysis identifies key regulatory elements, transcription factors, and chromatin-accessible regions that modulate gene expression.
+### 1. Chromatin Accessibility and Evolutionary Distance
+- Parse and reshape predicted ATAC-seq matrix (rows: peaks, cols: species)
+- Map predicted activity to peak coordinates and species metadata
+- Correlate chromatin decay with molecular (CACTUS) and chronological (MYA) distances from mouse
+- Perform scatterplot and smoothing to visualize decay patterns
 
-## Workflow
+### 2. Human-Accelerated Region Detection
+- Define foreground: Homo sapiens, Pan troglodytes, Pan paniscus
+- Define background: other Old World monkeys and apes (MYA 7-30)
+- Perform t-tests on each peak; adjust p-values using Benjamini-Hochberg FDR
+- Export top HAR as `.bed` file and inspect predicted chromatin values
 
-### Data Collection:
+### 3. Tree and Subtree Analysis
+- Visualize phylogenetic trees using molecular and chromatin similarity
+- Compare clustering methods: average vs single linkage
+- Render fan-style trees colored by evolutionary decay and species group (mouse, rat, primates)
+- Subset rodent-specific trees from Zoonomia to focus on target clades
 
-1. Extract UBE2E3 gene sequences and annotations from RefSeq.
+### 4. Longevity Association
+- Merge longevity values with peak predictions across foreground/background species
+- Use `phylolm()` to regress peak activity against longevity in the context of shared ancestry
+- Visualize regression and print model summary
 
-2. Obtain genome-wide datasets related to chromatin accessibility and regulatory elements.
+## Visualizations
 
-### Genomic Alignment:
+### 1. Fan Plot - Evolutionary Tree with Decay Gradient  
+Visualizes chromatin-based evolutionary tree with tip colors scaled by molecular distance.  
+<img width="373" alt="Screenshot 2025-04-21 at 4 14 27 PM" src="https://github.com/user-attachments/assets/66aeeb32-7b19-4929-9120-6955ce5c866a" />
 
-1. Align UBE2E3 sequence with hg38 genome assembly.
+### 2. Longevity vs Enhancer Activity  
+Scatter plot showing lifespan correlation with predicted enhancer signal across clades.  
+<img width="411" alt="Screenshot 2025-04-21 at 4 13 56 PM" src="https://github.com/user-attachments/assets/756eed03-c425-4ad1-8288-730a8c994944" />
 
-2. Identify human accelerated regions (HARs) that may have evolved under positive selection.
+### 3. Evolutionary Decay vs Molecular Distance  
+Non-linear decay of enhancer signal compared to molecular evolution across species.  
+<img width="410" alt="Screenshot 2025-04-21 at 4 15 36 PM" src="https://github.com/user-attachments/assets/56c45a48-4a78-4fd6-8d0e-b2bf3c232882" />
 
-3. Protein and Functional Analysis:
+## Tech Stack
+- **Languages**: R (data.table, ggplot2, ape, phylolm)
+- **Data Sources**: Zoonomia, Pantheria, UCSC genome alignments
+- **Statistical Tests**: t-test, correlation (Pearson), regression with phylogenetic correction
+- **Tree Tools**: ape, drop.tip, hclust, plot.phylo
 
-### Retrieve sequences from NCBI.
+## Scalability
+- Generalizable to other tissues beyond motor cortex
+- CNN-based predictions allow flexibility across genomes
+- Easily extended to enhancer-to-trait mapping (e.g., lifespan, brain size, etc.)
 
-1. Predict molecular weight, isoelectric point, and functional domains.
+## Example Applications
+- Cross-species enhancer evolution studies
+- HAR discovery using non-traditional phenotypes (e.g., longevity)
+- Linking molecular evolution to functional regulatory elements
 
-2. Identify post-translational modifications and protein interaction networks.
-
-### Evolutionary Comparison:
-
-1. Compare UBE2E3 and other regulatory sequences across different species.
-
-2. Detect sequence conservation and selection pressures.
-
-### Chromatin Accessibility and Epigenetics:
-
-1. Analyze ATAC-Seq data to identify open chromatin regions.
-
-2. Map enhancer-promoter interactions that drive gene expression.
-
-### Disease Association and Functional Interpretation:
-
-1. Identify potential mutations and their implications in diseases.
-
-2. Integrate expression data to uncover tissue-specific regulatory mechanisms.
-
-## Results
-
-**1. Gene Location:** Mapped on chromosome 2q31.3, covering 83,066 bp.
-
-**2. Protein Features:** Encodes a 147-amino acid protein with an E2 ubiquitin-conjugating domain.
-
-**3. Conservation:** Highly conserved across mammals, suggesting its essential function.
-
-**4. Functional Impact:** Plays a role in regulating proteostasis and cell cycle control.
-
-**5. Regulatory Landscape:** Chromatin accessibility analysis revealed multiple open regions near UBE2E3, linked to active transcription.
-
-**6. Evolutionary Dynamics:** Identified conserved motifs and human-specific variations in regulatory elements.
-
-## Key Insights
-
-**1. Biological Role:** UBE2E3 is integral to protein degradation and quality control within the cell.
-
-**2. Mutation Effects:** Variants in this gene could impact neurodegeneration, tumor suppression, and immune function.
-
-**3. Potential for Therapeutic Targeting:** Given its involvement in cellular homeostasis, targeting UBE2E3 could open pathways for novel treatments in oncology and neurobiology.
-
-**4. Chromatin Accessibility:** Regions with high ATAC-Seq signal correlate with active transcription of key genes.
-
-**5. Human Accelerated Regions (HARs):** Found in regulatory regions, these sequences might contribute to human-specific traits.
-
-## Conclusion
-
-This study provides a comprehensive exploration of UBE2E3 alongside regulatory genomics, evolutionary conservation, and chromatin accessibility. By integrating functional genomics and comparative genomics, we uncover novel insights into gene regulation and disease mechanisms. The findings pave the way for new therapeutic targets and a deeper understanding of genome evolution.
-
+## License
+MIT License
